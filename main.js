@@ -26,15 +26,18 @@ async function run() {
   const apiFilePath = core.getInput('oas-file-path');
   const apiFileurl = core.getInput('oas-file-url');
 
-  let baseFile = apiFilePath;
+  console.log('Found spec file: ${apiFileUrl}')
 
-  if (!baseFile) {
-    const files = await globPromise('**/{swagger,oas,openapi}.{json,yaml,yml}', { dot: true });
-    baseFile = files[0];
-    console.log(`Found spec file: ${baseFile}`);
-  }
+  // let baseFile = apiFilePath;
+  //
+  // if (!baseFile) {
+  //   const files = await globPromise('**/{swagger,oas,openapi}.{json,yaml,yml}', { dot: true });
+  //   baseFile = files[0];
+  //   console.log(`Found spec file: ${baseFile}`);
+  // }
 
   if (apiFileurl) {
+     console.log('pog')
      const oas = new OAS(apiFileurl);
 
       oas.bundle(function (err, schema) {
