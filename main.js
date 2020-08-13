@@ -26,9 +26,8 @@ async function run() {
   const apiFilePath = core.getInput('oas-file-path');
   const apiFileUrl = core.getInput('oas-file-url');
 
-  function extracted() {
-    console.log('pog');
-    const oas = new OAS(apiFileUrl);
+  function extracted(oasInput) {
+    const oas = new OAS(oasInput);
 
     oas.bundle(function (err, schema) {
         if (!schema['x-si-base']) {
