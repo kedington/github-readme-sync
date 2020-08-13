@@ -26,7 +26,7 @@ async function run() {
   const apiFilePath = core.getInput('oas-file-path');
   const apiFileurl = core.getInput('oas-file-url');
 
-  console.log('Found spec file: ${apiFileUrl}')
+  console.log(`Found spec file: ${apiFileUrl}`);
 
   // let baseFile = apiFilePath;
   //
@@ -71,6 +71,8 @@ async function run() {
         resolveWithFullResponse: true,
       };
 
+      console.log(`wowzer ${options}`);
+
       // TODO: Validate it here?
 
       return request.put(`https://dash.readme.io/api/v1/api-specification/${apiSettingId}`, options).then(
@@ -89,7 +91,7 @@ async function run() {
               } catch (e) {
                 // Should we do something here?
               }
-
+              console.log(`howzers ${err}`);
               if (errorOut.match(/no version/i)) {
                 // TODO: This is brittle; I'll fix it in the API tomorrrow then come back here
                 errorOut +=
