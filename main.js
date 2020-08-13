@@ -35,7 +35,7 @@ async function run() {
   }
 
   if (apiFileurl) {
-     const oas = new OAS(generatedSwaggerString);
+     const oas = new OAS(apiFileurl);
 
       oas.bundle(function (err, schema) {
         if (!schema['x-si-base']) {
@@ -175,5 +175,7 @@ async function run() {
       core.setFailed(`There was an error finding or loading your OAS file.\n\n${err.message || err}`);
     });
 }
+
+
 
 run();
