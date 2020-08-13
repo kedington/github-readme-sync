@@ -24,6 +24,7 @@ async function run() {
 
   const apiVersion = core.getInput('api-version');
   const apiFilePath = core.getInput('oas-file-path');
+  const apiFileurl = core.getInput('oas-file-url');
 
   let baseFile = apiFilePath;
 
@@ -31,6 +32,72 @@ async function run() {
     const files = await globPromise('**/{swagger,oas,openapi}.{json,yaml,yml}', { dot: true });
     baseFile = files[0];
     console.log(`Found spec file: ${baseFile}`);
+  }
+
+  if (apiFileurl) {
+     const oas = new OAS(generatedSwaggerString);
+
+      oas.bundle(function (err, schema) {
+        if (!schema['x-si-base']) {
+          // TODO: Put this back
+          /*
+        console.log("We couldn't find a Swagger file.".red);
+        console.log(`Don't worry, it's easy to get started! Run ${'oas init'.yellow} to get started.`);
+        process.exit(1);
+        */
+        }
+
+        schema['x-github-repo'] = process.env.GITHUB_REPOSITORY;
+        schema['x-github-sha'] = process.env.GITHUB_SHA;
+
+        const options = {
+          formData: {
+            spec: {
+              value: JSON.stringify(schema),
+              options: {
+                filename: 'swagger.json',
+                contentType: 'application/json',
+              },
+            },
+          },
+          headers: {
+            'x-readme-version': apiVersion || schema.info.version, // apiVersion,
+            'x-readme-source': 'github',
+          },
+          auth: { user: readmeKey },
+          resolveWithFullResponse: true,
+        };
+
+        // TODO: Validate it here?
+
+        return request.put(`https://dash.readme.io/api/v1/api-specification/${apiSettingId}`, options).then(
+          () => {
+            return 'Success!';
+          },
+          err => {
+            if (err.statusCode === 503) {
+              core.setFailed(
+                'Uh oh! There was an unexpected error uploading your file. Contact support@readme.io with a copy of your file for help!'
+              );
+            } else {
+              let errorOut = err.message;
+              try {
+                errorOut = JSON.parse(err.error).description;
+              } catch (e) {
+                // Should we do something here?
+              }
+
+              if (errorOut.match(/no version/i)) {
+                // TODO: This is brittle; I'll fix it in the API tomorrrow then come back here
+                errorOut +=
+                  "\n\nBy default, we use the version in your OAS file, however this version isn't on ReadMe.\n\nTo override it, add `api-version: 'v1.0.0'` to your GitHub Action, or add this version in ReadMe!";
+              }
+
+              core.setFailed(errorOut);
+            }
+          }
+        );
+      });
   }
 
   swaggerInline('**/*', {

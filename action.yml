@@ -12,6 +12,8 @@ inputs:
     description: 'The relative path for your API spec file (Default: We try to guess!)'
   api-version:
     description: 'ReadMe version to sync API into (Default: info.version in your schema)'
+  oas-file-url:
+    description: 'Remote Url for your api spec'
 runs:
   using: 'node12'
   main: 'main.js'
