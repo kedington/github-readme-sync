@@ -24,7 +24,7 @@ async function run() {
 
   const apiVersion = core.getInput('api-version');
   const apiFilePath = core.getInput('oas-file-path');
-  const apiFileurl = core.getInput('oas-file-url');
+  const apiFileUrl = core.getInput('oas-file-url');
 
   console.log(`Found spec file: ${apiFileUrl}`);
 
@@ -37,7 +37,7 @@ async function run() {
   // }
 
   if (apiFileUrl) {
-    console.log('pog')
+    console.log('pog');
     const oas = new OAS(apiFileUrl);
 
     oas.bundle(function (err, schema) {
