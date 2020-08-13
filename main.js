@@ -36,9 +36,9 @@ async function run() {
   //   console.log(`Found spec file: ${baseFile}`);
   // }
 
-  if (apiFileurl) {
+  if (apiFileUrl) {
     console.log('pog')
-    const oas = new OAS(apiFileurl);
+    const oas = new OAS(apiFileUrl);
 
     oas.bundle(function (err, schema) {
       if (!schema['x-si-base']) {
