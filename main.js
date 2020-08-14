@@ -30,9 +30,20 @@ async function run() {
   if (apiFileUrl) {
       console.log('pog');
       const oas = new OAS(apiFileUrl);
-      let baseFile = oas.file;
-      console.log(baseFile);
-
+      oas.load(function (err, schema) {
+          console.log(err)
+          console.log(schema)
+          let baseFile = schema;
+          swaggerInline('**/*', {
+            format: '.json',
+            metadata: true,
+            base: baseFile,
+            ignoreErrors: true,
+          })
+            .then(generatedSwaggerString => {
+               extracted(generatedSwaggerString)
+            });
+      });
   } else {
       let baseFile = apiFilePath;
 
@@ -41,16 +52,16 @@ async function run() {
         baseFile = files[0];
         console.log(`Found spec file: ${baseFile}`);
         }
+      swaggerInline('**/*', {
+        format: '.json',
+        metadata: true,
+        base: baseFile,
+        ignoreErrors: true,
+      })
+        .then(generatedSwaggerString => {
+           extracted(generatedSwaggerString)
+        });
   }
-  swaggerInline('**/*', {
-    format: '.json',
-    metadata: true,
-    base: baseFile,
-    ignoreErrors: true,
-  })
-    .then(generatedSwaggerString => {
-       extracted(generatedSwaggerString)
-    });
 
   function extracted(oasInput) {
     const oas = new OAS(oasInput);
