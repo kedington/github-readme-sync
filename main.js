@@ -25,6 +25,32 @@ async function run() {
   const apiVersion = core.getInput('api-version');
   const apiFilePath = core.getInput('oas-file-path');
   const apiFileUrl = core.getInput('oas-file-url');
+  console.log(apiFileUrl);
+
+  if (apiFileUrl) {
+      console.log('pog');
+      const oas = new OAS(apiFileUrl);
+      let baseFile = oas.file;
+      console.log(baseFile);
+
+  } else {
+      let baseFile = apiFilePath;
+
+      if (!baseFile) {
+        const files = await globPromise('**/{swagger,oas,openapi}.{json,yaml,yml}', {dot: true});
+        baseFile = files[0];
+        console.log(`Found spec file: ${baseFile}`);
+        }
+  }
+  swaggerInline('**/*', {
+    format: '.json',
+    metadata: true,
+    base: baseFile,
+    ignoreErrors: true,
+  })
+    .then(generatedSwaggerString => {
+       extracted(generatedSwaggerString)
+    });
 
   function extracted(oasInput) {
     const oas = new OAS(oasInput);
@@ -89,29 +115,6 @@ async function run() {
             }
         );
     });
-  }
-
-  if (apiFileUrl) {
-    extracted(apiFileUrl);
-  } else {
-
-    let baseFile = apiFilePath;
-
-    if (!baseFile) {
-        const files = await globPromise('**/{swagger,oas,openapi}.{json,yaml,yml}', { dot: true });
-        baseFile = files[0];
-        console.log(`Found spec file: ${baseFile}`);
-      }
-
-    swaggerInline('**/*', {
-      format: '.json',
-      metadata: true,
-      base: baseFile,
-      ignoreErrors: true,
-    })
-        .then(generatedSwaggerString => {
-            extracted(generatedSwaggerString)
-        });
   }
 }
 
